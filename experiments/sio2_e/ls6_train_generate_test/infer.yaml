@@ -1,0 +1,109 @@
+# LS6 GPU smoke test: 2 training structures, 2 epochs, 10 denoising steps.
+# Original network architecture is retained; this is not a quality evaluation.
+model:
+  name: egnn_denoiser
+  params:
+    elements:
+      - X
+      - Si
+      - O
+    properties:
+      "E [GPa]":
+        dim: 1
+        offset: 70.0155762900
+        scale: 7.3777028310
+    d_prop_embed: 8
+    icg_mode: null
+    # EGNN-specific parameters
+    coords_range: 6.0
+    hidden_nf: 128
+    n_coords: 8
+    n_layers: 4
+    normalization_factor: 40.0
+    r_cut: 6.5
+    sin_embedding: false
+    sin_embedding_time: false
+    tanh: false
+    residual: true
+    node_attrs: true
+
+scheduler:
+  name: sde_ve
+  params:
+    sigma_max_pos: 1.7
+    sigma_max_el: 1.5
+    noise_schedule_el: cosine
+    t_min: 0.01
+    t_max: 0.99
+ 
+loss:
+  name: epsilon_diff
+  params:
+    norm_type: l2
+    position_weight: 1.0
+    element_weight: 0.5
+
+load:
+  enabled: true
+  name: "sio2_e/ls6-smoke"
+  epoch: 2
+
+train:
+  enabled: false
+  data:
+    dataset:
+      target_density: 0.09
+      # Slice after pairing the full structure and property lists.
+      index: ":2"
+      source:
+        name: extxyz
+        params:
+          file: datasets/SiO2/data/SiO2.extxyz
+          properties_file: datasets/SiO2/data/SiO2_properties.json
+    dataloader:
+      batch_size: 1
+      num_workers: 0
+      shuffle: true
+    collate: {}
+  params:
+    lr: 1.e-3
+    optimizer_name: adam
+    num_epochs: 2
+    prop_null_prob: 0.0
+    prop_null_prob_all: 0.0
+    save:
+      name: "sio2_e/ls6-smoke"
+      epoch: 1
+ 
+infer:
+  enabled: true
+  data:
+    dataset:
+      target_density: 0.09
+      index: ':'
+      source:
+        name: extxyz
+        params:
+          file: experiments/sio2_e/ls6_train_generate_test/inputs/random_sio2_size_300_demo.extxyz
+          properties_file: experiments/sio2_e/ls6_train_generate_test/inputs/target_properties.json
+    dataloader:
+      batch_size: 1
+      num_workers: 0
+      shuffle: false
+    collate: {}
+  params:
+    from_random_noise: true
+    n_steps: 10
+    non_stochastic: false
+    con_weight: 1.0
+    max_repeats: 0
+    max_restarts: 0
+    restart_t: 0.4
+    restart_n_steps: 80
+    save:
+      name: "sio2_e/ls6-smoke"
+      enable_log: false
+      trajectories:
+        enabled: true
+        batches: [0]
+
