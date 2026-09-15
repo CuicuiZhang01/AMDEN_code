@@ -1,0 +1,13 @@
+# Minimal dependencies for the EGNN silicon smoke test (Python 3.11).
+torch==2.4.1
+torch-geometric==2.6.1
+torch-nl==0.3
+numpy<2
+einops
+tqdm
+PyYAML
+scipy
+ase
+matplotlib
+tensorboard
+python-dotenv

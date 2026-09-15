@@ -1,0 +1,83 @@
+model:
+  name: egnn_denoiser
+  params:
+    elements:
+    - Si
+    node_attrs: true
+    coords_range: 6.0
+    hidden_nf: 16
+    n_coords: 2
+    n_layers: 2
+    normalization_factor: 40.0
+    r_cut: 6.5
+    sin_embedding: false
+    sin_embedding_time: false
+    tanh: false
+    residual: true
+scheduler:
+  name: sde_ve
+  params:
+    sigma_max_pos: 1.7
+    sigma_max_el: 1.5
+    noise_schedule_el: cosine
+    t_min: 0.01
+    t_max: 0.99
+loss:
+  name: epsilon_diff
+  params:
+    norm_type: l2
+    position_weight: 1.0
+    element_weight: 0.5
+load:
+  enabled: false
+  name: mac-smoke/si
+  epoch: 2
+train:
+  enabled: true
+  data:
+    dataset:
+      target_density: null
+      source:
+        name: extxyz
+        params:
+          file: datasets/Si/data/Si-anneal.extxyz
+          index: :2
+    dataloader:
+      batch_size: 1
+      num_workers: 0
+      shuffle: true
+    collate: {}
+  params:
+    lr: 0.001
+    optimizer_name: adam
+    num_epochs: 2
+    save:
+      name: mac-smoke/si
+      epoch: 1
+infer:
+  enabled: false
+  data:
+    dataset:
+      target_density: null
+      source:
+        name: extxyz
+        params:
+          file: datasets/Si/data/Si-anneal.extxyz
+          index: :1
+    dataloader:
+      batch_size: 1
+      num_workers: 0
+      shuffle: false
+    collate: {}
+  params:
+    from_random_noise: true
+    n_steps: 10
+    non_stochastic: false
+    con_weight: 0.0
+    save:
+      name: mac-smoke/si
+      enable_log: false
+      trajectories:
+        enabled: true
+        batches:
+        - 0
