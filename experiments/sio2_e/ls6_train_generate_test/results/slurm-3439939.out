@@ -1,0 +1,14 @@
+Job ID: 3439939
+Node: c301-002.ls6.tacc.utexas.edu
+Python: /scratch/11579/cuicuizhang7879/venvs/amden/bin/python
+2026-09-14T22:35:14-05:00
+GPU: NVIDIA A100-PCIE-40GB
+device: cuda:0
+Model has 1057307 parameters
+Unconditioned model has 0 parameters
+device: cuda:0
+Loaded model from /work/11579/cuicuizhang7879/ls6/AMDEN_code/experiments/sio2_e/ls6_train_generate_test/results/models/sio2_e/ls6-smoke/00002.pt
+Model has 1057307 parameters
+Unconditioned model has 0 parameters
+Training and generation completed successfully.
+2026-09-14T22:38:27-05:00
