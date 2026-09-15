@@ -1,13 +1,15 @@
 #!/bin/bash -l
 #SBATCH --job-name=sio2-train
 #SBATCH --account=DMR21072
+#SBATCH --partition=gpu-h100
+#SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --output=experiments/sio2_e/ls6_train_generation1/results/slurm-%j.out
-#SBATCH --error=experiments/sio2_e/ls6_train_generation1/results/slurm-%j.err
+#SBATCH --output=experiments/sio2_e/ls6_train_generation1/slurm-%j.out
+#SBATCH --error=experiments/sio2_e/ls6_train_generation1/slurm-%j.err
 
-# Submit from the repository root with explicit --partition and --time.
-# Create results/ before sbatch. Environment follows the completed smoke test.
+# Submit from the repository root. Slurm logs use the existing experiment directory.
+# The script creates results/ for model outputs. Environment follows the smoke test.
 set -eo pipefail
 module unload python3
 module load python/3.12.11
