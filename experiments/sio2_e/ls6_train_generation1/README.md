@@ -1,44 +1,13 @@
 # SiO2 E-conditioned training and generation
 
-Transfer this experiment together with the repository's `src/` directory and
-`datasets/SiO2/data/`. Paths in the YAML files are relative to the repository root.
-Do not copy a macOS virtual environment to Linux; create a compatible GPU Python
-environment on the server. The repository runtime files describe its dependencies.
+当前阶段只准备 LS6 训练，操作步骤见 [TRAINING.md](TRAINING.md)。
 
-On an allocated GPU compute node, activate that environment and run from the
-repository root:
+- `train.slurm`：申请资源、激活环境、检查 CUDA、设置输出目录并直接启动 `src/main.py`。
+- `train.yaml`：训练配置，全部当前 SiO2 数据、800 轮、batch size 4，每 100 轮保存。
+- `results/`：模型权重及日志输出目录。
 
-```bash
-bash experiments/ls6_train_generation_test/run.sh train
-bash experiments/ls6_train_generation_test/run.sh infer
-```
+原 `run.sh` 的训练逻辑已合并进 `train.slurm`，无需单独上传或调用 run.sh。
+请从仓库根目录使用 sbatch 提交，并指定 GPU 分区和时长；提交前创建 results 目录。
 
-Use `all` to run training followed by inference in one invocation. This runner
-does not request resources or submit a Slurm job. Call it from a Slurm job after
-setting the account, GPU resources, time limit, and Python environment for your
-allocation. Cluster execution has not been validated locally.
-
-The configuration retains the full dataset and original network, batch size 4,
-learning rate 0.001, and 800 training epochs. Checkpoints are saved every 100
-epochs; inference loads epoch 800. Inference uses 200 denoising steps and up to
-4 charge-balance restarts. These are full experiment settings, not a short GPU
-smoke test.
-
-The input template contains 100 Si and 200 O atoms; its target E is 70 GPa.
-Random initialization and the configured ghost atoms mean that the generated
-atom count and composition are not guaranteed to match the template exactly.
-The requested E must be checked by subsequent property evaluation.
-
-`run.sh` exports `SAVE_ROOT_DIR` before importing the original Python code.
-Outputs are written under this experiment's `results/` directory:
-
-- `models/SiO2/egnn-E/00800.pt`: epoch 800 weights.
-- `models/SiO2/egnn-E/final.pt`: final weights.
-- `infer/SiO2/egnn-E/inferred.extxyz`: generated structures.
-- `infer/SiO2/egnn-E/traj-00000.extxyz`: denoising trajectory.
-- `infer/SiO2/egnn-E/given_properties.json`: requested conditions.
-- `log/`: training logs and TensorBoard events.
-
-Repeated runs can overwrite weights and generated structures. Existing local
-`cache/` results are not moved. Running `src/main.py` directly requires exporting
-the same `SAVE_ROOT_DIR` to use this output location.
+`infer.yaml` 和 `inputs/` 留待训练完成后整理；当前生成输入路径尚未更新。
+当前训练数据为 `datasets/SiO2/data/`，尚未确认与原实验的 SiO2-mix 数据一致。

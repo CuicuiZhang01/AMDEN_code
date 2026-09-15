@@ -1,4 +1,4 @@
-# Run with run.sh to store outputs in this experiment's results directory.
+# Training outputs are configured by train.slurm; inference setup is pending.
 model:
   name: egnn_denoiser
   params:
