@@ -2,7 +2,7 @@
 #SBATCH --job-name=sio2-gpu-a100-small
 #SBATCH --account=DMR21072
 #SBATCH --partition=gpu-a100-small
-#SBATCH --time=24:00:00
+#SBATCH --time=48:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output=experiments/sio2_e/ls6_train_generation1/slurm-gpu-a100-small-%j.out
