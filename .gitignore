@@ -3,3 +3,4 @@ __pycache__/
 *.py[cod]
 cache/
 .DS_Store
+events.out.tfevents.*

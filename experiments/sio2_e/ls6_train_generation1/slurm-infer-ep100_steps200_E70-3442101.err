@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/scratch/11579/cuicuizhang7879/venvs/amden/lib/python3.12/site-packages/ase/io/extxyz.py", line 704, in read_xyz
+    natoms = int(line)
+             ^^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'version https://git-lfs.github.com/spec/v1\n'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/work/11579/cuicuizhang7879/ls6/AMDEN_code/src/main.py", line 194, in <module>
+    main()
+  File "/work/11579/cuicuizhang7879/ls6/AMDEN_code/src/main.py", line 36, in main
+    infer_dataloader = build_dataloader(setting['infer'].get('data', setting['train']['data']), device)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/11579/cuicuizhang7879/ls6/AMDEN_code/src/main.py", line 185, in build_dataloader
+    dataset = data.MaterialDataset(**data_setting['dataset'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/11579/cuicuizhang7879/ls6/AMDEN_code/src/data.py", line 61, in __init__
+    samples = self.read_extxyz_dataset(**source['params'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/11579/cuicuizhang7879/ls6/AMDEN_code/src/data.py", line 127, in read_extxyz_dataset
+    samples = read(file, index=index)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/11579/cuicuizhang7879/venvs/amden/lib/python3.12/site-packages/ase/io/formats.py", line 818, in read
+    return list(_iread(filename, index, format, io, parallel=parallel,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/11579/cuicuizhang7879/venvs/amden/lib/python3.12/site-packages/ase/parallel.py", line 301, in new_generator
+    for result in generator(*args, **kwargs):
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/11579/cuicuizhang7879/venvs/amden/lib/python3.12/site-packages/ase/io/formats.py", line 887, in _iread
+    for dct in io.read(fd, *args, **kwargs):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/11579/cuicuizhang7879/venvs/amden/lib/python3.12/site-packages/ase/io/formats.py", line 645, in wrap_read_function
+    yield from read(filename, index, **kwargs)
+  File "/scratch/11579/cuicuizhang7879/venvs/amden/lib/python3.12/site-packages/ase/io/extxyz.py", line 706, in read_xyz
+    raise XYZError('ase.io.extxyz: Expected xyz header but got: {}'
+ase.io.extxyz.XYZError: ase.io.extxyz: Expected xyz header but got: invalid literal for int() with base 10: 'version https://git-lfs.github.com/spec/v1\n'

@@ -1,0 +1,8 @@
+Job ID: 3440108
+Node: v330-004.ls6.tacc.utexas.edu
+Python: /scratch/11579/cuicuizhang7879/venvs/amden/bin/python
+2026-09-14T23:30:50-05:00
+GPU: NVIDIA A100-PCIE-40GB
+device: cuda:0
+Model has 1057307 parameters
+Unconditioned model has 0 parameters
