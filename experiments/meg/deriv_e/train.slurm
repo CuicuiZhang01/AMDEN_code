@@ -1,12 +1,12 @@
 #!/bin/bash -l
 #SBATCH --job-name=meg_deriv_e
 #SBATCH --account=DMR21072
-#SBATCH --partition=gpu-a100-small
+#SBATCH --partition=gpu-h100
 #SBATCH --time=48:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --output=experiments/meg/deriv_e/slurm-gpu-a100-small-%j.out
-#SBATCH --error=experiments/meg/deriv_e/slurm-gpu-a100-small-%j.err
+#SBATCH --output=experiments/meg/deriv_e/slurm-gpu-h100-%j.out
+#SBATCH --error=experiments/meg/deriv_e/slurm-gpu-h100-%j.err
 
 # Submit from the repository root. Slurm logs use the existing experiment directory.
 # The script creates a separate output directory for each partition and job. Environment follows the smoke test.
@@ -28,7 +28,7 @@ echo "Python: $(command -v python)"
 date -Is
 # Slurm executes a spooled script, so resolve paths from the submission directory.
 experiment_dir="$PWD/experiments/meg/deriv_e"
-export SAVE_ROOT_DIR="$experiment_dir/results/gpu-a100-small/${SLURM_JOB_ID}"
+export SAVE_ROOT_DIR="$experiment_dir/results/gpu-h100/${SLURM_JOB_ID}"
 export MPLCONFIGDIR="$SAVE_ROOT_DIR/matplotlib"
 mkdir -p "$SAVE_ROOT_DIR"
 python -c 'import torch; assert torch.cuda.is_available(), "CUDA is unavailable. Activate a GPU environment on an allocated compute node."; print("GPU:", torch.cuda.get_device_name(0))'
