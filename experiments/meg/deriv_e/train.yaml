@@ -86,6 +86,8 @@ train:
     save:
       name: "meg/deriv_e"
       epoch: 1
+      # Save optimizer and RNG state alongside the inference weights each epoch.
+      training_state: true
  
 infer:
   enabled: false
@@ -114,4 +116,3 @@ infer:
       trajectories:
         enabled: true
         batches: [0,1,2,3]
-

@@ -17,6 +17,8 @@ source "${SCRATCH:?SCRATCH is not set}/venvs/amden/bin/activate"
 set -u
 cd "${SLURM_SUBMIT_DIR:?Submit from the repository root}"
 test -f src/main.py
+test -f src/pipeline.py
+test -f src/training_checkpoint.py
 test -s datasets/MEG/data/MEG.extxyz
 test -s datasets/MEG/data/MEG_properties.json
 export OMP_NUM_THREADS=1
@@ -31,7 +33,10 @@ experiment_dir="$PWD/experiments/meg/deriv_e"
 export SAVE_ROOT_DIR="$experiment_dir/results/gpu-h100/${SLURM_JOB_ID}"
 export MPLCONFIGDIR="$SAVE_ROOT_DIR/matplotlib"
 mkdir -p "$SAVE_ROOT_DIR"
+# Keep the exact configuration used by this job alongside its checkpoints.
+cp "$experiment_dir/train.yaml" "$SAVE_ROOT_DIR/train.yaml"
+echo "Full training checkpoints: $SAVE_ROOT_DIR/models/meg/deriv_e/*.train.pt"
 python -c 'import torch; assert torch.cuda.is_available(), "CUDA is unavailable. Activate a GPU environment on an allocated compute node."; print("GPU:", torch.cuda.get_device_name(0))'
-python src/main.py -s "$experiment_dir/train.yaml" -g 0
+python src/main.py -s "$SAVE_ROOT_DIR/train.yaml" -g 0
 echo "Training completed successfully."
 date -Is
