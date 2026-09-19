@@ -1,0 +1,50 @@
+#!/bin/bash -l
+#SBATCH --job-name=meg_eli_100_200
+#SBATCH --account=DMR21072
+#SBATCH --partition=gpu-a100-small
+#SBATCH --time=48:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --output=experiments/meg/egnn_e_li/slurm-resume100-200-%j.out
+#SBATCH --error=experiments/meg/egnn_e_li/slurm-resume100-200-%j.err
+
+# Submit from the repository root. Slurm logs use the existing experiment directory.
+# The script creates a separate output directory for each partition and job. Environment follows the smoke test.
+set -eo pipefail
+module unload python3
+module load python/3.12.11
+source "${SCRATCH:?SCRATCH is not set}/venvs/amden/bin/activate"
+set -u
+cd "${SLURM_SUBMIT_DIR:?Submit from the repository root}"
+test -f src/main.py
+test -f src/pipeline.py
+test -f src/training_checkpoint.py
+test -s datasets/MEG/data/MEG.extxyz
+test -s datasets/MEG/data/MEG_properties.json
+export OMP_NUM_THREADS=1
+export PYTHONUNBUFFERED=1
+
+echo "Job ID: $SLURM_JOB_ID"
+echo "Node: $(hostname)"
+echo "Python: $(command -v python)"
+date -Is
+# Slurm executes a spooled script, so resolve paths from the submission directory.
+experiment_dir="$PWD/experiments/meg/egnn_e_li"
+export SAVE_ROOT_DIR="$experiment_dir/results/gpu-a100-small/${SLURM_JOB_ID}"
+export MPLCONFIGDIR="$SAVE_ROOT_DIR/matplotlib"
+checkpoint="$experiment_dir/results/gpu-a100-small/3448347/models/meg/egnn_e_li/00100.pt"
+if [[ ! -s "$checkpoint" ]]; then
+    echo "Missing or empty checkpoint: $checkpoint" >&2
+    exit 1
+fi
+test "$SLURM_JOB_ID" != "3448347"
+# The models directory must exist for the relative checkpoint path to resolve.
+mkdir -p "$SAVE_ROOT_DIR/models"
+cp "$experiment_dir/train_resume_ep100_to200.yaml" "$SAVE_ROOT_DIR/train_resume.yaml"
+echo "Resume model weights: $checkpoint (Adam state starts fresh)"
+echo "Target: 200 epochs; save weights and full training state every 50 epochs"
+echo "Outputs: $SAVE_ROOT_DIR"
+python -c 'import torch; assert torch.cuda.is_available(), "CUDA is unavailable. Activate a GPU environment on an allocated compute node."; print("GPU:", torch.cuda.get_device_name(0))'
+python src/main.py -s "$SAVE_ROOT_DIR/train_resume.yaml" -g 0
+echo "Training completed successfully."
+date -Is
