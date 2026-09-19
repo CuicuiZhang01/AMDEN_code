@@ -7,13 +7,15 @@ from tqdm import trange, tqdm
 import json
 
 import utils
+import training_checkpoint
 from data import save_dirs
 
 
 def train(model, scheduler, loss_func, train_dataloader,
           lr, num_epochs, start_epoch=0, prop_null_prob=0.0, prop_null_prob_all=0.0, 
           optimizer_name='adam', lr_scheduler=None,
-          save=None, orig_model=None, init_r_cut=None, clip_grad_norm=None):
+          save=None, orig_model=None, init_r_cut=None, clip_grad_norm=None,
+          resume_checkpoint=None):
     """Training pipeline.
 
     Args:
@@ -53,6 +55,7 @@ def train(model, scheduler, loss_func, train_dataloader,
         raise NotImplementedError(f'No optimizer called {optimizer_name}')
     optimizer = OptimizerClass(list(model.parameters()), lr=lr)
 
+    lr_scheduler_obj = None
     # Choose the learning rate scheduler to use.
     if lr_scheduler is not None and lr_scheduler.get('enabled', False):
         if lr_scheduler['name'] == 'reduce_lr_on_plateu':
@@ -81,6 +84,13 @@ def train(model, scheduler, loss_func, train_dataloader,
     epoch_loss, num_nan = 0, 0
 
     desc = 'Avg loss %.6f, num nan %d'
+
+    # Restore randomness after initialization, immediately before data iteration.
+    checkpoint_model = orig_model if orig_model is not None else model
+    if resume_checkpoint is not None:
+        training_checkpoint.restore_checkpoint(
+            resume_checkpoint, checkpoint_model, optimizer, lr_scheduler_obj,
+            start_epoch, train_dataloader)
 
     with trange(start_epoch, num_epochs, desc=desc % (0, 0)) as bar:
         for epoch in bar:
@@ -186,6 +196,12 @@ def train(model, scheduler, loss_func, train_dataloader,
                     save_model(model, save['name'], orig_model, epoch + 1)
                     if tb_logger:
                         tb_logger.log_model_params(model, epoch)
+                    if save.get('training_state', False):
+                        training_checkpoint.save_checkpoint(
+                            os.path.join(save_dirs['models'], save['name'],
+                                         f'{epoch + 1:05d}.train.pt'),
+                            checkpoint_model, optimizer, lr_scheduler_obj,
+                            epoch + 1, train_dataloader)
     if save is not None:
         save_model(model, save['name'], orig_model)
 

@@ -28,8 +28,14 @@ def main():
     start_epoch = setting['load']['epoch'] if setting['load']['enabled'] else 0
     if setting.get('train', None) is not None and setting['train']['enabled']:
         train_dataloader = build_dataloader(setting['train']['data'], device)
+        resume_checkpoint = None
+        if setting['load'].get('training_state', False):
+            if not setting['load']['enabled']:
+                raise ValueError('Full training resume requires load.enabled')
+            resume_checkpoint = os.path.join(
+                save_dirs['models'], setting['load']['name'], f'{start_epoch:05d}.train.pt')
         pipeline.train(model=model, scheduler=scheduler, loss_func=loss_func, train_dataloader=train_dataloader,
-                       orig_model=orig_model, start_epoch=start_epoch, **setting['train']['params'])
+                       orig_model=orig_model, start_epoch=start_epoch, resume_checkpoint=resume_checkpoint, **setting['train']['params'])
 
     # Load inferring dataset and dataloader.
     if setting.get('infer', None) is not None and setting['infer']['enabled']:
