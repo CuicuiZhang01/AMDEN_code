@@ -59,6 +59,8 @@ train:
     save:
       name: "a-Si/melt/egnn"
       epoch: 100
+      # Save optimizer and RNG state alongside inference weights for resuming.
+      training_state: true
 
 infer:
   enabled: false
@@ -86,4 +88,3 @@ infer:
       trajectories:
         enabled: true
         batches: [0]
-
